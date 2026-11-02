@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HUD Spotify - Carro</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1DB954">
+</head>
+
+<body>
+    <div class="container">
+        <h1>HUD Letras</h1>
+
+        <!-- Botão de conexão Bluetooth -->
+        <button id="connectBtn">Parear HUD via Bluetooth</button>
+        <div id="status" class="disconnected">Status: Desconectado</div>
+
+        <!-- Seção de controle da música -->
+        <div class="player-box">
+            <button id="loginSpotify">Conectar com Spotify</button>
+            <p id="songInfo">Música: Nenhuma tocando</p>
+            <div id="lyricsBox">Aguardando reprodução...</div>
+
+            <!-- Ajuste de adiantamento do verso -->
+            <div class="ajuste">
+                <span>Adiantar letra:</span>
+                <button id="btnMenos" class="mini">−100 ms</button>
+                <strong id="valorAdiantamento">500 ms</strong>
+                <button id="btnMais" class="mini">+100 ms</button>
+            </div>
+
+            <!-- Editor de letra manual -->
+            <details class="editor">
+                <summary>Letra manual / sincronizar</summary>
+                <div class="busca">
+                    <input id="buscaLetra" type="text" placeholder="Buscar no LRCLIB (título + artista)">
+                    <button id="btnBuscar" class="mini">Buscar</button>
+                </div>
+                <div id="resultadosBusca"></div>
+
+                <textarea id="lyricsEditor"
+                    placeholder="Cole aqui a letra (um verso por linha) ou um LRC com tempos [mm:ss.xx]"></textarea>
+                <div class="linha-botoes">
+                    <button id="btnSincronizar" class="mini">Sincronizar</button>
+                    <button id="btnMarcar" class="mini">Marcar</button>
+                    <button id="btnDesfazer" class="mini secundario">Desfazer</button>
+                    <button id="btnCancelarSync" class="mini secundario">Cancelar</button>
+                </div>
+                <div class="linha-botoes">
+                    <button id="btnEstimar" class="mini secundario">Estimar tempos</button>
+                    <button id="btnSalvarLetra" class="mini secundario">Salvar LRC</button>
+                    <button id="btnCopiarLRC" class="mini secundario">Copiar LRC</button>
+                    <button id="btnApagarManual" class="mini secundario">Apagar manual</button>
+                </div>
+                <div class="linha-botoes">
+                    <button id="btnMaisCedo" class="mini secundario">Letra mais cedo (−0,5 s)</button>
+                    <button id="btnMaisTarde" class="mini secundario">Letra mais tarde (+0,5 s)</button>
+                    <button id="btnExportar" class="mini secundario">Exportar letras manuais</button>
+                    <button id="btnImportar" class="mini secundario">Importar letras</button>
+                    <input id="arquivoImportar" type="file" accept=".json" hidden>
+                </div>
+                <p id="editorMsg"></p>
+                <p id="pendencias"></p>
+                <button id="btnCopiarPendencias" class="mini secundario">Copiar lista de pendências</button>
+            </details>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

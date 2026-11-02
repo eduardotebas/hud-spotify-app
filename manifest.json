@@ -1,0 +1,11 @@
+{
+  "name": "HUD Letras",
+  "short_name": "HUD Letras",
+  "description": "Letras sincronizadas do Spotify no HUD do carro",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#121212",
+  "theme_color": "#1DB954"
+}
