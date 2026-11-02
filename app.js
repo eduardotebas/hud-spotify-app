@@ -924,3 +924,85 @@ document.getElementById('arquivoImportar').addEventListener('change', async (e) 
     }
     e.target.value = "";
 });
+
+// ==========================================
+// Pacote de letras para o HUD (ESP32)
+// ==========================================
+function semAcento(t) {
+    return (t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+// Chave do título para o ESP32 comparar com o que o iPhone informa
+function chaveMusica(titulo) {
+    return semAcento(limparTitulo(titulo))
+        .toLowerCase()
+        .replace(/[\(\[][^\)\]]*[\)\]]/g, " ")
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim();
+}
+
+// "tempo_em_centesimos texto" por linha
+function compactarLRC(linhas) {
+    return linhas
+        .map(l => `${Math.round(l.tempo * 100)} ${semAcento(l.texto).replace(/\s+/g, " ").trim()}`)
+        .join("\n");
+}
+
+// Guarda título, artista e duração de cada música que tocar
+const _carregarFaixaMeta = carregarFaixa;
+carregarFaixa = async function (item) {
+    try {
+        localStorage.setItem("meta_" + item.id, JSON.stringify({
+            t: item.name,
+            a: item.artists.map(x => x.name).join(", "),
+            d: Math.round(item.duration_ms / 1000)
+        }));
+    } catch (e) { /* sem espaço: ignora */ }
+    await _carregarFaixaMeta(item);
+};
+
+document.getElementById('btnPacote').addEventListener('click', () => {
+    const musicas = [];
+    let semLetra = 0;
+
+    for (let i = 0; i < localStorage.length; i++) {
+        const chave = localStorage.key(i);
+        if (!chave.startsWith("meta_")) continue;
+        const id = chave.slice(5);
+
+        let meta;
+        try { meta = JSON.parse(localStorage.getItem(chave)); } catch (e) { continue; }
+
+        let linhas = null;
+        const manual = localStorage.getItem("letra_manual_" + id);
+        if (manual) {
+            linhas = parsearLRC(manual);
+        } else {
+            try {
+                const cache = JSON.parse(localStorage.getItem("letra2_" + id) || "null");
+                if (cache && cache.tipo === "sincronizada") linhas = parsearLRC(cache.texto);
+            } catch (e) { /* ignora */ }
+        }
+
+        if (!linhas || linhas.length === 0) { semLetra++; continue; }
+
+        musicas.push({
+            k: chaveMusica(meta.t),
+            t: meta.t,
+            a: meta.a,
+            d: meta.d,
+            l: compactarLRC(linhas)
+        });
+    }
+
+    if (musicas.length === 0) { mostrarMsg("Nenhuma música com letra para exportar ainda."); return; }
+
+    const blob = new Blob([JSON.stringify({ versao: 1, musicas })], { type: "application/json" });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = "pacote-hud.json";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+
+    mostrarMsg(`Pacote gerado: ${musicas.length} música(s) com letra, ${semLetra} sem letra.`);
+});
